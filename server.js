@@ -2,23 +2,21 @@ const http = require('http');
 const router = require('./lib/router');
 const fs = require('fs');
 
-var count = 0;
-function counter () {
-  count++;
+function fileNamerTimeDTS () {
   var time = new Date().toString().slice(16,24);
   return time;
 };
 var routes = new router();
 routes.post('/notes', function(req, res) {
   req.on('data', (data) => {
-    var fileNameTime = counter();
+    var postFileName = fileNamerTimeDTS();
     console.log('saving JSON data to /notes');
-    fs.writeFile('./notes/' + fileNameTime + '.json',data, (err) => {
+    fs.writeFile('./notes/' + postFileName + '.json',data, (err) => {
     res.writeHead(200, {
       'Content-Type': 'application/json'
     });
-    console.log('JSON data input saved to location /notes/' + fileNameTime + '.json\n');
-    res.write('{"message":"saving JSON data to /notes/'+ fileNameTime + '"}');
+    console.log('JSON data input saved to location /notes/' + postFileName + '.json');
+    res.write('{"message":"saving JSON data to /notes/'+ postFileName + '"}');
     res.end();
     });
   });
@@ -30,7 +28,9 @@ routes.post('/notes', function(req, res) {
       console.log(err);
     } else {
       console.log('Getting file list from location /notes');
-      res.writeHead(200);
+      res.writeHead(200, {
+        'Content-Type': 'text/plain'
+      });
       for(var i = 0; i < files.length; i++) {
         res.write('filepath: ' + req.url + '/' + files[i].toString() + '\n');
         console.log(files[i]);
@@ -43,12 +43,18 @@ routes.post('/notes', function(req, res) {
   fs.readdir('./notes', (err, files) => {
     if(files.length < 1) {
       err = 'ERROR: no files at location /notes\n';
+      res.writeHead(200, {
+        'Content-Type': 'text/plain'
+      });
       console.log(err);
     } else {
       console.log('\nDeleting all files from location /notes');
       for(var i = 0; i < files.length; i++) {
         fs.unlink(__dirname + req.url + '/' + files[i]);
       }
+      res.writeHead(200, {
+        'Content-Type': 'text/plain'
+      });
       res.write('All files deleted from location /notes');
       console.log('All files deleted from location /notes\n');
     }

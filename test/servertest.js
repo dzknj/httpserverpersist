@@ -1,12 +1,12 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+chai.use(chaiHttp);
 const request = chai.request;
 const expect = chai.expect;
 const server = require('./../server');
 const router = require('./../lib/router');
 const fs = require('fs');
 require(__dirname + '/../server');
-chai.use(chaiHttp);
 
 describe('Testing the http server', () => {
   before((done) => {
@@ -24,7 +24,7 @@ describe('Testing the http server', () => {
     });
   });
   it('should respond to GET request to /notes with a list of files in location /notes', (done) => {
-    chai.request('localhost:3000')
+    request('localhost:3000')
     .get('/notes')
     .end((err, res) => {
       var foo = fs.readdirSync('./notes');
